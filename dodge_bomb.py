@@ -50,6 +50,12 @@ def main():
                 return
         screen.blit(bg_img, [0, 0]) 
 
+        #　こうかとんrectと爆弾rectが重なっていあたら
+        if kk_rct.colliderect(bb_rct):
+            print("Game Over")
+            return
+
+
         key_lst = pg.key.get_pressed()
 
         DELTA = {
