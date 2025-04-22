@@ -9,6 +9,22 @@ WIDTH, HEIGHT = 1100, 650
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
+def check_bound(rct: pg.rect) -> tuple[bool, bool]:
+    """
+    引数：こうかとんRectかばくだんRect
+    戻り値：タプル（横方向h）
+
+    """
+    yoko, tate = True, True  # 横, 縦方向用の変数
+    #横方向判定
+    if rct.left < 0 or WIDTH < rct.right:  #　画面外だったら
+        yoko = False
+    #縦方向判定
+    if rct.top < 0 or HEIGHT < rct.bottom:   #　画面外だったら
+        tate = False
+    return yoko, tate
+
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -58,8 +74,17 @@ def main():
         #if key_lst[pg.K_RIGHT]:
             #sum_mv[0] += 5
         kk_rct.move_ip(sum_mv)
+        if check_bound(kk_rct) != (True, True):  #画面外だったら
+            kk_rct.move_ip(-sum_mv[0], -sum_mv[1])  #画面内に戻す
         screen.blit(kk_img, kk_rct)
-        bb_rct.move_ip(vx, vy)
+        bb_rct.move_ip(vx, vy)  #爆発の移動
+        yoko, tate =check_bound(bb_rct)
+        if not yoko:  #左右どちらかにはみ出ていたら
+            vx *= -1
+        if not tate:  #上下どちらかにはみ出ていたら
+            vy *= -1
+
+
         screen.blit(bb_img, bb_rct)
         pg.display.update()
         tmr += 1
