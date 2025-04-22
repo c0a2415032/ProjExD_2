@@ -44,14 +44,25 @@ def gameover(screen: pg.Surface) -> None:
     txt_rct.centery = HEIGHT/2
     kk2_img = pg.transform.rotozoom(pg.image.load("fig/8.png"), 0, 0.9)
     kk2_rct = kk2_img.get_rect()
-    kk2_rct.center = 350, HEIGHT   #泣きこうかとん左
+    kk2_rct.center = 350, HEIGHT/2   #泣きこうかとん左座標
     screen.blit(sika, [0, 0])      # 薄黒画面の座標
     screen.blit(kk2_img, kk2_rct)
-    kk2_rct.center = 750, HEIGHT/2 #泣きこうかとん右
+    kk2_rct.center = 750, HEIGHT/2 #泣きこうかとん右座標
     screen.blit(kk2_img, kk2_rct)
     screen.blit(txt, txt_rct)
     pg.display.update()
-    time.sleep(5)
+    time.sleep(5)  #5秒間表示
+
+
+def kakudaikasoku():  #爆弾拡大加速リスト関数
+    bb_accs = [a for a in range(1, 11)] #加速
+    kakudai = []
+    for r in range(1, 11):
+      bb_img = pg.Surface((20*r, 20*r))
+      pg.draw.circle(bb_img, (255, 0, 0), (10*r, 10*r), 10*r) #拡大
+      bb_img.set_colorkey((0, 0, 0))#爆弾ふち
+      kakudai.append(bb_img) #爆弾拡大をリストに入れる
+    return bb_accs,kakudai
 
 
 def main():
@@ -62,11 +73,6 @@ def main():
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
-    #こうかとん悲しい初期化
-  
-    kk2_img = pg.transform.rotozoom(pg.image.load("fig/8.png"), 0, 0.9)
-    kk2_rct = kk2_img.get_rect()
-    kk2_rct.center = 300, 200
 
     #　 爆弾初期化
     bb_img = pg.Surface((20, 20))
@@ -74,7 +80,7 @@ def main():
     bb_rct = bb_img.get_rect()
     bb_rct.centerx = random.randint(0, WIDTH)
     bb_rct.centery = random.randint(0, HEIGHT)
-    bb_img.set_colorkey((0, 0, 0))
+    bb_img.set_colorkey((0, 0, 0))#爆弾ふち
     vx, vy = +5, +5
 
 
@@ -82,6 +88,11 @@ def main():
     tmr = 0
   
     while True:
+        kaso,kaku = kakudaikasoku()   #爆弾拡大加速関数呼び出し
+        avx = vx*kaso[min(tmr//500, 9)] #爆弾横の速度
+        avx2 = vy*kaso[min(tmr//500, 9)]#爆弾縦の速度
+        bb_img = kaku[min(tmr//500, 9)] #爆弾大きさ
+        
         for event in pg.event.get():
             if event.type == pg.QUIT: 
                 return
@@ -89,7 +100,7 @@ def main():
 
         #　こうかとんrectと爆弾rectが重なっていあたら
         if kk_rct.colliderect(bb_rct):
-            print("Game Over")
+            print("GameOver")
             gameover(screen)
             return
 
@@ -108,20 +119,11 @@ def main():
                 sum_mv[0] += mv[0]  #左右方向
                 sum_mv[1] += mv[1]  #上下方向
 
-        
-        #if key_lst[pg.K_UP]:
-            #sum_mv[1] -= 5
-        #if key_lst[pg.K_DOWN]:
-            #sum_mv[1] += 5
-        #if key_lst[pg.K_LEFT]:
-            #sum_mv[0] -= 5
-        #if key_lst[pg.K_RIGHT]:
-            #sum_mv[0] += 5
         kk_rct.move_ip(sum_mv)
         if check_bound(kk_rct) != (True, True):  #画面外だったら
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])  #画面内に戻す
         screen.blit(kk_img, kk_rct) #こうかとんの描画
-        bb_rct.move_ip(vx, vy)  #爆発の移動
+        bb_rct.move_ip(avx, avx2)  #爆発の移動
         yoko, tate =check_bound(bb_rct)
         if not yoko:  #左右どちらかにはみ出ていたら
             vx *= -1
