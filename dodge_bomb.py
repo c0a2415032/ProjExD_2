@@ -90,7 +90,7 @@ def main():
     while True:
         kaso,kaku = kakudaikasoku()   #爆弾拡大加速関数呼び出し
         avx = vx*kaso[min(tmr//500, 9)] #爆弾横の速度
-        avx2 = vy*kaso[min(tmr//500, 9)]#爆弾縦の速度
+        avy = vy*kaso[min(tmr//500, 9)]#爆弾縦の速度
         bb_img = kaku[min(tmr//500, 9)] #爆弾大きさ
         
         for event in pg.event.get():
@@ -123,7 +123,7 @@ def main():
         if check_bound(kk_rct) != (True, True):  #画面外だったら
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])  #画面内に戻す
         screen.blit(kk_img, kk_rct) #こうかとんの描画
-        bb_rct.move_ip(avx, avx2)  #爆発の移動
+        bb_rct.move_ip(avx, avy)  #爆発の移動
         yoko, tate =check_bound(bb_rct)
         if not yoko:  #左右どちらかにはみ出ていたら
             vx *= -1
